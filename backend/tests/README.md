@@ -30,7 +30,7 @@ TEST_DB_NAME=login_auth_template_test
 TEST_DB_SSLMODE=disable
 
 # JWT secret for tests (stable/deterministic)
-JWT_SECRET=test-secret-for-tests
+JWT_SECRET=test
 JWT_EXPIRY_MINUTES=60
 
 APP_ENV=test
@@ -40,7 +40,7 @@ APP_ENV=test
 
 ## Importing Environment Variables
 
-Tests require the environment variables from `.env.test`. You can skip manual imports and let `test-main.go` load them.
+Tests require the environment variables from `.env.test`. You can skip manual imports and let `test-main.go` load them. Functions defined in `setup.go`.
 
 ---
 

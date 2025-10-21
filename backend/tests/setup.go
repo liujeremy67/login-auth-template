@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -18,6 +19,12 @@ func SetupTestDB(t *testing.T) *sql.DB {
 	RunSchema(db, "../db/schema.sql")
 	TruncateAll(db)
 	return db
+}
+
+func LoadTestEnv() {
+	if err := godotenv.Load(".env.test"); err != nil {
+		log.Println("No .env.test file found (skipping)")
+	}
 }
 
 // ConnectTestDB opens a connection to the test database
