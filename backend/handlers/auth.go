@@ -38,14 +38,14 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Hash password
+	// hashing
 	hash, err := utils.HashPassword(req.Password)
 	if err != nil {
 		http.Error(w, "failed to hash password", http.StatusInternalServerError)
 		return
 	}
 
-	// Create user in DB
+	// create users in db
 	user, err := models.CreateUser(h.DB, req.Email, req.Username, hash)
 	if err != nil {
 		http.Error(w, "failed to create user (email may already exist)", http.StatusBadRequest)
