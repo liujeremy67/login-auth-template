@@ -8,25 +8,21 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 )
 
 var jwtSecret []byte
 
-func init() {
-	// load from .env for local dev; dne in production
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found (skipping)") // not fatal btw
+func getSecret() []byte { // delay initialization to avoid funny async error
+	if len(jwtSecret) == 0 {
+		secret := os.Getenv("JWT_SECRET")
+		if secret == "" {
+			log.Fatal("JWT_SECRET environment variable not set")
+		}
+		jwtSecret = []byte(secret)
 	}
-
-	secret := os.Getenv("JWT_SECRET")
-	if secret == "" {
-		log.Fatal("JWT_SECRET environment variable not set")
-	}
-	jwtSecret = []byte(secret)
+	return jwtSecret
 }
 
-// CreateToken generates a new JWT for a given user ID + email
 func CreateToken(userID int, email string, ttl time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":   userID,
@@ -36,17 +32,15 @@ func CreateToken(userID int, email string, ttl time.Duration) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(getSecret())
 }
 
-// ValidateToken parses and verifies the token
 func ValidateToken(tokenStr string) (*jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
-		// Ensure signing method is HMAC
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
-		return jwtSecret, nil
+		return getSecret(), nil
 	})
 	if err != nil {
 		return nil, err
